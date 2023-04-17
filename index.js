@@ -1,16 +1,14 @@
 const contacts = require("./contacts.js");
-const { program } = require("commander");
-// const yargs = require("yargs");
-// const { hideBin } = require("yargs/helpers");
+const { Command } = require("commander");
 
-const invokeActions = async ({ action, contactId, name, email, phone }) => {
+const invokeAction = async ({ action, id, name, email, phone }) => {
   switch (action) {
     case "list":
       const contactsList = await contacts.listContacts();
       console.log(contactsList);
       break;
     case "get":
-      const contact = await contacts.getContactById(contactId, {
+      const contact = await contacts.getContactById(id, {
         name,
         email,
         phone,
@@ -18,57 +16,38 @@ const invokeActions = async ({ action, contactId, name, email, phone }) => {
       console.log(contact);
       break;
     case "add":
-      const newContact = await contacts.addContact(name, email, phone);
+      const newContact = await contacts.addContact({ name, email, phone });
       console.log(newContact);
       break;
-    case "updateContact":
-      const updateContact = await contacts.updateContact(name, email, phone);
+    case "update":
+      const updateContact = await contacts.updateContact({
+        name,
+        email,
+        phone,
+      });
       console.log(updateContact);
       break;
     case "remove":
-      const removeContact = await contacts.removeContact(contactId);
+      const removeContact = await contacts.removeContact(id);
       console.log(removeContact);
       break;
 
     default:
+      console.warn("\x1B[31m Unknown action type!");
       break;
   }
 };
-// invokeActions({ action: "listContacts" });
-// invokeActions({ action: "getContactById", id: "drsAJ4SHPYqZeG-83QTVW" });
-// invokeActions({
-//   action: "addContact",
-//   name: "Ivan Sirko",
-//   email: "gory.moskva@gamil.com",
-//   phone: "(666) 666-6666",
-// });
-// invokeActions({
-//   action: "updateContact",
-//   id: "AeHIrLTr6JkxGE6SN-0Rw",
-//   name: "Allen Raymond-Green",
-//   email: "nulla.ante@vestibul.co.uk",
-//   phone: "(992) 914-3792",
-// });
-// invokeActions({
-//   action: "removeContact",
-//   id: "AeHIrLTr6JkxGE6SN-0Rw",
-// });
-// const arr = hideBin(process.argv);
-// console.log(arr);
 
-// const { argv } = yargs(arr);
-// console.log(argv);
-
+const program = new Command();
 program
-  .option("--action <type>")
-  .option("--id <type>")
-  .option("--name <type>")
-  .option("--email <type>")
-  .option("--phone <type>");
+  .option("-a, --action <type>", "choose action")
+  .option("-i, --id <type>", "user id")
+  .option("-n, --name <type>", "user name")
+  .option("-e, --email <type>", "user email")
+  .option("-p, --phone <type>", "user phone");
 
 program.parse(process.argv);
 
-const options = program.opts();
-console.log(options);
+const argv = program.opts();
 
-invokeActions(options);
+invokeAction(argv);
